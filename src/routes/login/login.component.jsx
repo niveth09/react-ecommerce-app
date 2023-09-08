@@ -1,41 +1,77 @@
-import { useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { getRedirectResult } from "firebase/auth";
+import {
+  auth,
+  signInWithGooglePopUp,
+  signInWithGoogleRedirect,
+  createUserDocumentFromAuth,
+  signInAuthUserWithEmailAndPassword,
+} from "../../utils/firebase/firebase.utils";
+import "./login.styles.scss";
+import { UserContext } from "../../contexts/user.context";
 
 const defaultFormFields = {
-  userName: "",
   email: "",
   password: "",
-  confirmPassword: "",
 };
 
 const LogInForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
-  const { userName, email, password, confirmPassword } = formFields;
+  const { email, password } = formFields;
+  const { setCurrentUser } = useContext(UserContext);
 
+  //   useEffect(async () => {
+  //     const responseFromGoogleRedirect = await getRedirectResult(auth);
+  //     console.log(responseFromGoogleRedirect);
+  //   }, []);
+  const resetFormFields = () => {
+    setFormFields(defaultFormFields);
+  };
   const handleChangeFields = (event) => {
     const { name, value } = event.target;
+
     setFormFields({ ...formFields, [name]: value });
-    console.log(formFields);
   };
+  const signInWithGoogle = async () => {
+    const { user } = await signInWithGooglePopUp();
+    console.log(user);
+    setCurrentUser(user);
+  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const { user } = await signInAuthUserWithEmailAndPassword(
+        email,
+        password
+      );
+      resetFormFields();
+      setCurrentUser(user);
+    } catch (error) {
+      switch (error.code) {
+        case "auth/wrong-password":
+          alert("incorrect password for email");
+          break;
+        case "auth/user-not-found":
+          alert("no user associated with this email");
+          break;
+        default:
+          console.log(error);
+      }
+    }
+  };
+  //   const logGoogleRedirect = async () => {
+  //     const { user } = await signInWithGoogleRedirect();
+  //   };
 
   return (
     <div>
-      <h1>Login with Email and Password</h1>
-      <form>
-        <div>
-          <label htmlFor="userName">User Name</label>
-          <input
-            name="userName"
-            type="text"
-            required
-            value={userName}
-            onChange={handleChangeFields}
-          />
-        </div>
+      <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email">Email</label>
           <input
             name="email"
-            type="text"
+            type="email"
             required
             value={email}
             onChange={handleChangeFields}
@@ -51,22 +87,12 @@ const LogInForm = () => {
             onChange={handleChangeFields}
           />
         </div>
+
         <div>
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input
-            name="confirmPassword"
-            type="password"
-            required
-            value={confirmPassword}
-            onChange={handleChangeFields}
-          />
-        </div>
-        <div>
-          <button type="submit" onClick={handleChangeFields}>
-            Log In
-          </button>
+          <button type="submit">Log In</button>
         </div>
       </form>
+      <button onClick={signInWithGoogle}>Log In with Google account</button>
     </div>
   );
 };
