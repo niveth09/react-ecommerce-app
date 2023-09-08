@@ -33,9 +33,7 @@ const LogInForm = () => {
     setFormFields({ ...formFields, [name]: value });
   };
   const signInWithGoogle = async () => {
-    const { user } = await signInWithGooglePopUp();
-    console.log(user);
-    setCurrentUser(user);
+    await signInWithGooglePopUp();
   };
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -46,7 +44,6 @@ const LogInForm = () => {
         password
       );
       resetFormFields();
-      setCurrentUser(user);
     } catch (error) {
       switch (error.code) {
         case "auth/wrong-password":
