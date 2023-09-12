@@ -4,14 +4,8 @@ import { Routes, Route } from "react-router-dom";
 import Navigation from "./routes/navigation/navigation.component";
 import Home from "./routes/home/home.component";
 import SignUpForm from "./routes/sign-up/sign-up.component";
+import Shop from "./routes/shop/shop.component";
 
-const Shop = () => {
-  return (
-    <div>
-      <h1>Shop page</h1>
-    </div>
-  );
-};
 const App = () => {
   return (
     <Routes>
